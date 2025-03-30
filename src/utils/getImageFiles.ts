@@ -1,14 +1,12 @@
-import { Vehicle } from "../App";
+import { Car } from "../CarContainer";
 
-export const getImageFiles = async (
-  selectedVehicle: Vehicle
-): Promise<string[]> => {
+export const getImageFiles = async (selectedCar: Car): Promise<string[]> => {
   try {
-    if (!selectedVehicle) {
+    if (!selectedCar) {
       return [];
     }
 
-    const { model, exteriorColor } = selectedVehicle;
+    const { model, exteriorColor } = selectedCar;
 
     // 이미지 기본 경로
     const basePath = `/src/assets/images/${model}/${exteriorColor}`;

@@ -1,7 +1,7 @@
 // src/Car360Viewer.tsx
 import React, { useState, useEffect, useRef } from "react";
 
-interface Car360ViewerProps {
+export interface Car360ViewerProps {
   images: string[];
   autoPlay?: boolean;
   autoPlayInterval?: number;
@@ -16,6 +16,19 @@ const Car360Viewer = ({
   const [isAutoPlaying, setIsAutoPlaying] = useState(autoPlay);
   const draggingRef = useRef<boolean>(false);
   const startXRef = useRef<number>(0);
+  const prevImageIndexRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (prevImageIndexRef.current !== currentImageIndex) {
+      setCurrentImageIndex(prevImageIndexRef.current);
+    }
+  }, []);
+
+  // 이미지 인덱스 변경 함수를 별도로 만들어서 이전 값을 저장한 후 업데이트
+  const updateImageIndex = (newIndex: number) => {
+    prevImageIndexRef.current = currentImageIndex; // 현재 값을 이전 값으로 저장
+    setCurrentImageIndex(newIndex); // 새 값으로 업데이트
+  };
 
   // AutoPlay 기능
   useEffect(
@@ -23,14 +36,14 @@ const Car360Viewer = ({
       let interval: ReturnType<typeof setInterval>;
       if (isAutoPlaying) {
         interval = setInterval(() => {
-          setCurrentImageIndex((prev) => (prev + 1) % images.length);
+          updateImageIndex((currentImageIndex + 1) % images.length);
         }, autoPlayInterval);
       }
       return () => {
         if (interval) clearInterval(interval);
       };
     },
-    [isAutoPlaying, autoPlayInterval, images.length]
+    [isAutoPlaying, autoPlayInterval, currentImageIndex]
   );
 
   // 전역 마우스 이벤트 핸들러 설정
@@ -42,11 +55,11 @@ const Car360Viewer = ({
 
         if (Math.abs(diff) > 20) {
           if (diff < 0) {
-            setCurrentImageIndex(
-              (prev) => (prev - 1 + images.length) % images.length
+            updateImageIndex(
+              (currentImageIndex - 1 + images.length) % images.length
             );
           } else {
-            setCurrentImageIndex((prev) => (prev + 1) % images.length);
+            updateImageIndex((currentImageIndex + 1) % images.length);
           }
           startXRef.current = e.clientX;
         }
@@ -64,7 +77,7 @@ const Car360Viewer = ({
         window.removeEventListener("mouseup", handleGlobalMouseUp);
       };
     },
-    [images.length]
+    [images.length, currentImageIndex]
   );
 
   /**
