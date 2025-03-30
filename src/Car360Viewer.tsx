@@ -7,64 +7,78 @@ interface Car360ViewerProps {
   autoPlayInterval?: number;
 }
 
-const Car360Viewer: React.FC<Car360ViewerProps> = ({
+const Car360Viewer = ({
   images,
   autoPlay = false,
   autoPlayInterval = 1000,
-}) => {
+}: Car360ViewerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(autoPlay);
   const draggingRef = useRef<boolean>(false);
   const startXRef = useRef<number>(0);
 
   // AutoPlay 기능
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isAutoPlaying) {
-      interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % images.length);
-      }, autoPlayInterval);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isAutoPlaying, autoPlayInterval, images.length]);
+  useEffect(
+    function handleAutoPlay() {
+      let interval: ReturnType<typeof setInterval>;
+      if (isAutoPlaying) {
+        interval = setInterval(() => {
+          setCurrentIndex((prev) => (prev + 1) % images.length);
+        }, autoPlayInterval);
+      }
+      return () => {
+        if (interval) clearInterval(interval);
+      };
+    },
+    [isAutoPlaying, autoPlayInterval, images.length]
+  );
 
   // 전역 마우스 이벤트 핸들러 설정
-  useEffect(() => {
-    const handleGlobalMouseMove = (e: MouseEvent) => {
-      if (!draggingRef.current) return;
-      const diff = e.clientX - startXRef.current;
+  useEffect(
+    function handleGlobalMouse() {
+      const handleGlobalMouseMove = (e: MouseEvent) => {
+        if (!draggingRef.current) return;
+        const diff = e.clientX - startXRef.current;
 
-      if (Math.abs(diff) > 20) {
-        if (diff > 0) {
-          setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-        } else {
-          setCurrentIndex((prev) => (prev + 1) % images.length);
+        if (Math.abs(diff) > 20) {
+          if (diff > 0) {
+            setCurrentIndex(
+              (prev) => (prev - 1 + images.length) % images.length
+            );
+          } else {
+            setCurrentIndex((prev) => (prev + 1) % images.length);
+          }
+          startXRef.current = e.clientX;
         }
-        startXRef.current = e.clientX;
-      }
-    };
+      };
 
-    const handleGlobalMouseUp = () => {
-      draggingRef.current = false;
-    };
+      const handleGlobalMouseUp = () => {
+        draggingRef.current = false;
+      };
 
-    window.addEventListener("mousemove", handleGlobalMouseMove);
-    window.addEventListener("mouseup", handleGlobalMouseUp);
+      window.addEventListener("mousemove", handleGlobalMouseMove);
+      window.addEventListener("mouseup", handleGlobalMouseUp);
 
-    return () => {
-      window.removeEventListener("mousemove", handleGlobalMouseMove);
-      window.removeEventListener("mouseup", handleGlobalMouseUp);
-    };
-  }, [images.length]);
+      return () => {
+        window.removeEventListener("mousemove", handleGlobalMouseMove);
+        window.removeEventListener("mouseup", handleGlobalMouseUp);
+      };
+    },
+    [images.length]
+  );
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  /**
+   * 이미지 마우스 다운 이벤트 핸들러
+   */
+  const handleImageMouseDown = (e: React.MouseEvent) => {
     draggingRef.current = true;
     startXRef.current = e.clientX;
     setIsAutoPlaying(false); // 마우스 다운 시 자동 재생 중지
   };
 
+  /**
+   * 자동 재생 버튼 토글
+   */
   const handleAutoPlayToggle = () => {
     setIsAutoPlaying((prev) => !prev);
   };
@@ -75,7 +89,7 @@ const Car360Viewer: React.FC<Car360ViewerProps> = ({
         className="w-full h-full cursor-grab active:cursor-grabbing object-cover"
         src={images[currentIndex]}
         alt={`car-${currentIndex}`}
-        onMouseDown={handleMouseDown}
+        onMouseDown={handleImageMouseDown}
       />
       <button
         className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 hover:bg-black/70 text-white px-4 py-2 rounded-full transition-colors"
