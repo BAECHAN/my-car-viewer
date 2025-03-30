@@ -103,6 +103,7 @@ const Car360Viewer = ({
         src={images[currentImageIndex]}
         alt={`car-${currentImageIndex}`}
         onMouseDown={handleImageMouseDown}
+        loading="lazy"
       />
       <button
         className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 hover:bg-black/70 text-white px-4 py-2 rounded-full transition-colors"
