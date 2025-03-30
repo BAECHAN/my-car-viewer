@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getImageFiles } from "./utils/getImageFiles";
 import Car360Viewer from "./Car360Viewer";
 
