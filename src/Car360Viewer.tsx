@@ -12,7 +12,7 @@ const Car360Viewer = ({
   autoPlay = false,
   autoPlayInterval = 1000,
 }: Car360ViewerProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(autoPlay);
   const draggingRef = useRef<boolean>(false);
   const startXRef = useRef<number>(0);
@@ -23,7 +23,7 @@ const Car360Viewer = ({
       let interval: ReturnType<typeof setInterval>;
       if (isAutoPlaying) {
         interval = setInterval(() => {
-          setCurrentIndex((prev) => (prev + 1) % images.length);
+          setCurrentImageIndex((prev) => (prev + 1) % images.length);
         }, autoPlayInterval);
       }
       return () => {
@@ -41,12 +41,12 @@ const Car360Viewer = ({
         const diff = e.clientX - startXRef.current;
 
         if (Math.abs(diff) > 20) {
-          if (diff > 0) {
-            setCurrentIndex(
+          if (diff < 0) {
+            setCurrentImageIndex(
               (prev) => (prev - 1 + images.length) % images.length
             );
           } else {
-            setCurrentIndex((prev) => (prev + 1) % images.length);
+            setCurrentImageIndex((prev) => (prev + 1) % images.length);
           }
           startXRef.current = e.clientX;
         }
@@ -87,8 +87,8 @@ const Car360Viewer = ({
     <div className="relative w-[900px] h-[300px] select-none">
       <img
         className="w-full h-full cursor-grab active:cursor-grabbing object-cover"
-        src={images[currentIndex]}
-        alt={`car-${currentIndex}`}
+        src={images[currentImageIndex]}
+        alt={`car-${currentImageIndex}`}
         onMouseDown={handleImageMouseDown}
       />
       <button
